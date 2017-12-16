@@ -35,8 +35,6 @@ public class PaintActivity extends BaseActivity {
     @InjectExtra(key = "Title")
     String title;
 
-    private List<Fragment> mList = new ArrayList();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,12 +44,14 @@ public class PaintActivity extends BaseActivity {
     }
 
     private void initData() {
-
+        List<Fragment> mList = new ArrayList();
         toolbar.setTitle("< "+title);
-
-        mList.add(PaintFragment.newInstance(0));
-        mList.add(PaintFragment.newInstance(1));
-        mList.add(PaintFragment.newInstance(2));
+        int instance0 = 0;
+        int instance1 = 1;
+        int instance2 = 2;
+        mList.add(PaintFragment.newInstance(instance0));
+        mList.add(PaintFragment.newInstance(instance1));
+        mList.add(PaintFragment.newInstance(instance2));
         mViewPager.setAdapter(new PaintAdapter(this.getSupportFragmentManager(),mList));
         mTabLayout.setupWithViewPager(mViewPager);
     }

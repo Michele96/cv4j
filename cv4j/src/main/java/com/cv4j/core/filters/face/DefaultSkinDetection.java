@@ -53,9 +53,14 @@ public class DefaultSkinDetection implements ISkinDetection{
 		int max = Math.max(tr, Math.max(tg, tb));
 		int min = Math.min(tr, Math.min(tg, tb));
 		int rg = Math.abs(tr - tg);
+		int trLimit = 95;
+		int tgLimit = 40;
+		int tbLimit = 20;
+		int rgLimit = 15;
+		int maxMinLimit = 15;
 
-		return tr > 95 && tg > 40 && tb > 20 && rg > 15 &&
-				(max - min) > 15 && tr > tg && tr > tb;
+		return tr > trLimit && tg > tgLimit && tb > tbLimit && rg > rgLimit &&
+				(max - min) > maxMinLimit && tr > tg && tr > tb;
 	}
 
 }

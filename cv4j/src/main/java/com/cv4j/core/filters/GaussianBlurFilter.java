@@ -47,7 +47,8 @@ public class GaussianBlurFilter extends BaseFilter {
 
         final int size = width*height;
         int dims = src.getChannels();
-        makeGaussianKernel(sigma, 0.002, Math.min(width, height));
+        float accuracy = 0.002f;
+        makeGaussianKernel(sigma, accuracy, Math.min(width, height));
 
         mExecutor = TaskUtils.newFixedThreadPool("cv4j",dims);
         service = new ExecutorCompletionService<>(mExecutor);
@@ -114,20 +115,35 @@ public class GaussianBlurFilter extends BaseFilter {
         }
     }
 
-    public void makeGaussianKernel(final double sig, final double accuracy, int maxRadius) {
-        int kRadius = (int)Math.ceil(sig*Math.sqrt(-2*Math.log(accuracy)))+1;
-        if (maxRadius < 50) maxRadius = 50;         // too small maxRadius would result in inaccurate sum.
-        if (kRadius > maxRadius) kRadius = maxRadius;
-        kernel = new float[kRadius];
-        for (int i=0; i<kRadius; i++)               // Gaussian function
-            kernel[i] = (float)(Math.exp(-0.5*i*i/sig/sig));
+
+    public void makeGaussianKernel(final double sigmaValue, final double accuracy, int maxRadius) {
+        int factor = -2;
+        int radiusLimit = 50;
+        float expFactor = -0.5f;
+
+        int kRadius = (int) Math.ceil(sigmaValue * Math.sqrt(factor * Math.log(accuracy))) + 1;
+
+        if (maxRadius < radiusLimit) {
+            maxRadius = radiusLimit;         // too small maxRadius would result in inaccurate sum.
+        }
+
+        this.kernel = new float[kRadius];
+
+        for (int i=0; i<kRadius; i++){               // Gaussian function
+            this.kernel[i] = (float)(Math.exp(expFactor*i*i/sigmaValue/sigmaValue));
+            this.kernel[i] = (float)(Math.exp(-0.5*i*i/sigmaValue/sigmaValue));
+        }
+
         double sum;                                 // sum over all kernel elements for normalization
+        int sumFactor = 2;
         if (kRadius < maxRadius) {
             sum = kernel[0];
-            for (int i=1; i<kRadius; i++)
-                sum += 2*kernel[i];
-        } else
-            sum = sig * Math.sqrt(2*Math.PI);
+            for (int i=1; i<kRadius; i++){
+                sum += sumFactor*kernel[i];
+            }
+        } else {
+            sum = sigmaValue * Math.sqrt(sumFactor * Math.PI);
+        }
 
         for (int i=0; i<kRadius; i++) {
             double v = (kernel[i]/sum);

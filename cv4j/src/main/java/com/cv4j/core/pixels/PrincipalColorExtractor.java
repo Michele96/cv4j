@@ -26,21 +26,24 @@ import com.cv4j.core.datamodel.Scalar;
  * The principal color extractor.
  */
 public class PrincipalColorExtractor {
+	/**
+	 * The default number of clusters.
+	 */
+	private static final int NUM_CLUSTERS_DEFAULT = 5;
+
 	private List<ClusterCenter> clusterCenterList;
 	private List<ClusterPoint> pointList;
 	
 	private int numOfCluster;
 	
-	public PrincipalColorExtractor(int clusters)
-	{
+	public PrincipalColorExtractor(int clusters) {
 		this.numOfCluster = clusters;
-		pointList = new ArrayList<ClusterPoint>();
-		clusterCenterList = new ArrayList<ClusterCenter>();
+		this.pointList = new ArrayList<>();
+		this.clusterCenterList = new ArrayList<>();
 	}
 	
-	public PrincipalColorExtractor()
-	{
-		this(5);
+	public PrincipalColorExtractor() {
+		this(NUM_CLUSTERS_DEFAULT);
 	}
 
 	public List<Scalar> extract(ColorProcessor processor) {
@@ -93,6 +96,7 @@ public class PrincipalColorExtractor {
         // stop condition--
         double[][] oldClusterCenterColors = reCalculateClusterCenters();
         int times = 10;
+        int timesLimit = 10;
         while(true)
         {
         	stepClusters();
@@ -105,7 +109,7 @@ public class PrincipalColorExtractor {
         	{
         		oldClusterCenterColors = newClusterCenterColors;
         	}
-        	if(times > 10) {
+        	if(times > timesLimit) {
         		break;
         	}
         	times++;
@@ -227,15 +231,18 @@ public class PrincipalColorExtractor {
 	 * @param c
 	 * @return distance value
 	 */
-	private double calculateEuclideanDistance(ClusterPoint p, ClusterCenter c) 
-	{
+	private double calculateEuclideanDistance(ClusterPoint p, ClusterCenter c) {
 	    int pr = p.getPixelColor().red;
 	    int pg = p.getPixelColor().green;
 	    int pb = p.getPixelColor().blue;
 	    int cr = c.getPixelColor().red;
 	    int cg = c.getPixelColor().green;
 	    int cb = c.getPixelColor().blue;
-	    return Math.sqrt(Math.pow((pr - cr), 2.0) + Math.pow((pg - cg), 2.0) + Math.pow((pb - cb), 2.0));
+
+	    float factor = 2f;
+	    double euclideanDistance = Math.sqrt(Math.pow((pr - cr), factor) + Math.pow((pg - cg), factor) + Math.pow((pb - cb), factor));
+
+		return euclideanDistance;
 	}
 
 }

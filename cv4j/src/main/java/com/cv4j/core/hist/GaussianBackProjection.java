@@ -30,6 +30,7 @@ public class GaussianBackProjection {
         if(src.getChannels() == 1 || model.getChannels() == 1) {
             throw new CV4JException("did not support image type : single-channel...");
         }
+
         float[] R = model.toFloat(0);
         float[] G = model.toFloat(1);
         int r = 0;
@@ -39,12 +40,16 @@ public class GaussianBackProjection {
         int mw = model.getWidth();
         int mh = model.getHeight();
         int index = 0;
+        int indexb = 2;
+        int indexg = 1;
+        int indexr = 0;
+
         for (int row = 0; row < mh; row++) {
             for (int col = 0; col < mw; col++) {
                 index = row*mw + col;
-                b = model.toByte(2)[index]&0xff;
-                g = model.toByte(1)[index]&0xff;
-                r = model.toByte(0)[index]&0xff;
+                b = model.toByte(indexb)[index]&0xff;
+                g = model.toByte(indexg)[index]&0xff;
+                r = model.toByte(indexr)[index]&0xff;
                 sum = b + g + r;
                 R[index] = r / sum;
                 G[index] = g / sum;
@@ -65,14 +70,15 @@ public class GaussianBackProjection {
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 index = row*width + col;
-                b = src.toByte(2)[index]&0xff;
-                g = src.toByte(1)[index]&0xff;
-                r = src.toByte(0)[index]&0xff;
+                b = src.toByte(indexb)[index]&0xff;
+                g = src.toByte(indexg)[index]&0xff;
+                r = src.toByte(indexr)[index]&0xff;
                 sum = b + g + r;
                 float red = r / sum;
                 float green = g / sum;
-                pr = (float)((1.0 / (rmdev[1]*Math.sqrt(2 * Math.PI)))*Math.exp(-(Math.pow((red - rmdev[0]), 2)) / (2 * Math.pow(rmdev[1], 2))));
-                pg = (float)((1.0 / (gmdev[1]*Math.sqrt(2 * Math.PI)))*Math.exp(-(Math.pow((green - gmdev[0]),2)) / (2 * Math.pow(gmdev[1], 2))));
+                int factor = 2;
+                pr = (float)((1.0 / (rmdev[1]*Math.sqrt(factor * Math.PI)))*Math.exp(-(Math.pow((red - rmdev[0]), factor)) / (factor * Math.pow(rmdev[1], factor))));
+                pg = (float)((1.0 / (gmdev[1]*Math.sqrt(factor * Math.PI)))*Math.exp(-(Math.pow((green - gmdev[0]),factor)) / (factor * Math.pow(gmdev[1], factor))));
                 sum = pr*pg;
 
                 if(Float.isNaN(sum)){
@@ -94,8 +100,9 @@ public class GaussianBackProjection {
         }
 
         float delta = max - min;
+        int maxRgb = 255;
         for(int i=0; i<result.length; i++) {
-            dst.getGray()[i] =  (byte)(((result[i] - min)/delta)*255);
+            dst.getGray()[i] =  (byte)(((result[i] - min)/delta)*maxRgb);
         }
     }
 }

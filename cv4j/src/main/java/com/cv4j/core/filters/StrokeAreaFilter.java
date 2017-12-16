@@ -25,13 +25,16 @@ import static com.cv4j.image.util.Tools.clamp;
  */
 public class StrokeAreaFilter extends BaseFilter {
 
-    // default value, optional value 30, 15, 10, 5, 2
-    private double size = 10;
+    /**
+     * Default size value.
+     */
+    private static final int SIZE_DEFAULT = 15;
 
-    private final static double d02 = 150*150;
+    // default value, optional value 30, 15, 10, 5, 2
+    private double size;
 
     public StrokeAreaFilter() {
-        this(15);
+        this(SIZE_DEFAULT);
     }
 
     public StrokeAreaFilter(int strokeSize) {
@@ -51,8 +54,7 @@ public class StrokeAreaFilter extends BaseFilter {
 
         byte[][] output = new byte[3][R.length];
 
-        int index = 0;
-        int index2 = 0;
+        int index;
         int semiRow = (int)(size/2);
         int semiCol = (int)(size/2);
         int newX;
@@ -66,13 +68,16 @@ public class StrokeAreaFilter extends BaseFilter {
         }
 
         // start the algorithm process here!!
+        int index0 = 0;
+        int index1 = 1;
+        int index2 = 2;
         for(int row=0; row<height; row++) {
             int ta = 0;
             for(int col=0; col<width; col++) {
                 index = row * width + col;
-                rgb[0] = R[index] & 0xff;
-                rgb[1] = G[index] & 0xff;
-                rgb[2] = B[index] & 0xff;
+                rgb[index0] = R[index] & 0xff;
+                rgb[index1] = G[index] & 0xff;
+                rgb[index2] = B[index] & 0xff;
 
                 /* adjust region to fit in source image */
                 // color difference and moment Image
@@ -94,17 +99,17 @@ public class StrokeAreaFilter extends BaseFilter {
                             newX = width - 1;
                         }
                         index2 = newY * width + newX;
-                        rgb2[0] = R[index2] & 0xff; // red
-                        rgb2[1] = G[index2] & 0xff; // green
-                        rgb2[2] = B[index2] & 0xff; // blue
+                        rgb2[index0] = R[index2] & 0xff; // red
+                        rgb2[index1] = G[index2] & 0xff; // green
+                        rgb2[index2] = B[index2] & 0xff; // blue
                         moment += colorDiff(rgb, rgb2);
                     }
                 }
                 // calculate the output pixel value.
                 int outPixelValue = clamp((int) (255.0d * moment / (size*size)));
-                output[0][index] = (byte)outPixelValue;
-                output[1][index] = (byte)outPixelValue;
-                output[2][index] = (byte)outPixelValue;
+                output[index0][index] = (byte)outPixelValue;
+                output[index1][index] = (byte)outPixelValue;
+                output[index2][index] = (byte)outPixelValue;
             }
         }
 
@@ -114,13 +119,17 @@ public class StrokeAreaFilter extends BaseFilter {
     }
 
     public static double colorDiff(int[] rgb1, int[] rgb2) {
+        final double d02 = 150*150;
+
         // (1-(d/d0)^2)^2
         double d2;
         double r2;
+
         d2 = colorDistance(rgb1, rgb2);
 
-        if (d2 >= d02)
+        if (d2 >= d02) {
             return 0.0;
+        }
 
         r2 = d2 / d02;
 
@@ -131,9 +140,12 @@ public class StrokeAreaFilter extends BaseFilter {
         int dr;
         int dg;
         int db;
-        dr = rgb1[0] - rgb2[0];
-        dg = rgb1[1] - rgb2[1];
-        db = rgb1[2] - rgb2[2];
+        int index0 = 0;
+        int index1 = 1;
+        int index2 = 2;
+        dr = rgb1[index0] - rgb2[index0];
+        dg = rgb1[index1] - rgb2[index1];
+        db = rgb1[index2] - rgb2[index2];
         return dr * dr + dg * dg + db * db;
     }
 }

@@ -40,12 +40,6 @@ import com.safframework.injectview.annotations.InjectView;
 
 public class GaussianBackFragment extends BaseFragment {
 
-    @InjectView(R.id.target_image)
-    ImageView targetImage;
-
-    @InjectView(R.id.sample_image)
-    ImageView sampleImage;
-
     @InjectView(R.id.result)
     ImageView result;
 
@@ -59,30 +53,17 @@ public class GaussianBackFragment extends BaseFragment {
     }
 
     private void initData() {
-
         Resources res = getResources();
-        Bitmap bitmap1 = BitmapFactory.decodeResource(res, R.drawable.test_project_target);
-        targetImage.setImageBitmap(bitmap1);
 
-        Bitmap bitmap2 = BitmapFactory.decodeResource(res, R.drawable.test_project_sample);
-        sampleImage.setImageBitmap(bitmap2);
+        BackFragment bf = new BackFragment();
+        bf.initData(res);
 
-        CV4JImage cv4jImage = new CV4JImage(bitmap1);
-        ColorProcessor colorProcessor = (ColorProcessor)cv4jImage.getProcessor();
-
-        int w = colorProcessor.getWidth();
-        int h = colorProcessor.getHeight();
-
-        // 反向投影结果
-        CV4JImage resultCV4JImage = new CV4JImage(w,h);
-        ByteProcessor byteProcessor = (ByteProcessor)resultCV4JImage.getProcessor();
-
-        // sample
-        CV4JImage sample = new CV4JImage(bitmap2);
-        ColorProcessor sampleProcessor = (ColorProcessor)sample.getProcessor();
+        ColorProcessor colorProcessor  = bf.getColorProcessor();
+        ColorProcessor sampleProcessor = bf.getSampleProcessor();
+        ByteProcessor  byteProcessor   = bf.getByteProcessor();
 
         GaussianBackProjection gaussianBackProjection = new GaussianBackProjection();
-        gaussianBackProjection.backProjection(colorProcessor,sampleProcessor,byteProcessor);
+        gaussianBackProjection.backProjection(colorProcessor, sampleProcessor, byteProcessor);
 
         result.setImageBitmap(byteProcessor.getImage().toBitmap());
     }
