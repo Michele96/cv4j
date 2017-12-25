@@ -17,6 +17,7 @@ package com.cv4j.core.datamodel;
 
 import com.cv4j.core.datamodel.image.ImageData;
 import com.cv4j.core.datamodel.image.ImageProcessor;
+import com.cv4j.core.utils.SafeCasting;
 import com.cv4j.exception.CV4JException;
 
 /**
@@ -68,32 +69,32 @@ public class ColorProcessor implements ImageProcessor {
     /**
      * The R values from RGB.
      */
-    private byte[] R;
+    private byte[] R = null;
 
     /**
      * The G values from RGB.
      */
-    private byte[] G;
+    private byte[] G = null;
 
     /**
      * The B values from RGB.
      */
-    private byte[] B;
-
-    /**
-     * The image data.
-     */
-    private ImageData image;
+    private byte[] B = null;
 
     /**
      * The image's width.
      */
-    private int width;
+    private int width = 0;
 
     /**
      * The image's height.
      */
-    private int height;
+    private int height = 0;
+
+    /**
+     * The image data.
+     */
+    private ImageData image = null;
 
     /**
      * The ColorProcessor constructor.
@@ -136,9 +137,9 @@ public class ColorProcessor implements ImageProcessor {
             int green = (c & value00FF00) >> VALUE_8;
             int blue  = (c & VALUE_0000FF);
 
-            this.R[i] = (byte) red;
-            this.G[i] = (byte) green;
-            this.B[i] = (byte) blue;
+            this.R[i] = SafeCasting.safeIntToByte(red);
+            this.G[i] = SafeCasting.safeIntToByte(green);
+            this.B[i] = SafeCasting.safeIntToByte(blue);
         }
     }
 
@@ -210,7 +211,7 @@ public class ColorProcessor implements ImageProcessor {
         int[] pixels = new int[width * height];
         for (int i=0; i < pixels.length; i++){
             pixels[i] = valueFF000000 | ((R[i] & VALUE_0000FF) << VALUE_16)
-                                      | ((G[i] & VALUE_0000FF)<< VALUE_8)
+                                      | ((G[i] & VALUE_0000FF) << VALUE_8)
                                       |   B[i] & VALUE_0000FF;
         }
 
@@ -234,7 +235,7 @@ public class ColorProcessor implements ImageProcessor {
 
     @Override
     public float[] toFloat(int index) {
-        float[] data;
+        float[] data = new float[0];
 
         switch (index) {
             case RED_CHANNEL_INDEX:
@@ -258,7 +259,7 @@ public class ColorProcessor implements ImageProcessor {
 
     @Override
     public int[] toInt(int index) {
-        int[] data;
+        int[] data = null;
 
         switch (index) {
             case RED_CHANNEL_INDEX:
@@ -282,7 +283,7 @@ public class ColorProcessor implements ImageProcessor {
 
     @Override
     public byte[] toByte(int index) {
-        byte[] data;
+        byte[] data = null;
 
         switch (index) {
             case RED_CHANNEL_INDEX:

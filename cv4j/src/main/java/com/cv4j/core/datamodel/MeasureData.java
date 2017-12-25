@@ -15,6 +15,8 @@
  */
 package com.cv4j.core.datamodel;
 
+import com.cv4j.core.utils.SafeCasting;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 /**
@@ -22,10 +24,26 @@ import java.text.NumberFormat;
  */
 public class MeasureData {
 
-    private Point cp; // center x of the contour and center y of the contour
-    private double angle; // angle of the contour rotated
-    private double area; // measure the area of contour
-    private double roundness; // measure the possible circle of the contour
+    /**
+     * Center x of the contour and center y of the contour.
+     */
+    private Point cp = null;
+
+    /**
+     * Angle of the contour rotated.
+     */
+    private double angle = 0;
+
+    /**
+     * Measure the area of contour.
+     */
+    private double area = 0;
+
+    /**
+     * Measure the possible circle of the contour.
+     */
+    private double roundness = 0;
+
     public MeasureData() {
         super();
     }
@@ -64,13 +82,16 @@ public class MeasureData {
 
     @Override
     public String toString() {
-
         NumberFormat format = new DecimalFormat("#.00");
-        StringBuilder sb = new StringBuilder();
-        sb.append("Point:").append(cp.x).append(",").append(cp.y).append("\n")
-                .append("angle:").append((Math.abs(angle) == 0 ? 0.0 :format.format(angle))).append("\n")
-                .append("area:").append((int)area).append("\n")
-                .append("roundness:").append(format.format(roundness));
-        return sb.toString();
+
+        String strPoint     = this.cp.x + "," + this.cp.y + ")";
+        String strAngle     = (Double.compare(Math.abs(this.angle), 0) == 0 ? "0.0" : format.format(angle));
+        String strArea      = String.valueOf(SafeCasting.safeDoubleToInt(this.area));
+        String strRoundness = String.valueOf(format.format(roundness));
+
+        return "Point:     " + strPoint     + "\n" +
+               "Angle:     " + strAngle     + "\n" +
+               "Area:      " + strArea      + "\n" +
+               "Roundness: " + strRoundness;
     }
 }

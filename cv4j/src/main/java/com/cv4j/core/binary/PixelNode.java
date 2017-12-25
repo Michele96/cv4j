@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 package com.cv4j.core.binary;
+
+import java.io.Serializable;
+
 /**
  * The PixelNode class
  */
-public class PixelNode implements Comparable<PixelNode> {
+public class PixelNode implements Comparable<PixelNode>, Serializable {
 
     /**
 	 * Index number
 	 */	
-	public int index;
+	public int index = 0;
 	/**
 	 * Row number
 	 */	
-	public int row;
+	public int row = 0;
 	/**
 	 * Column number
 	 */	
-	public int col;
+	public int col = 0;
 
 	/**
 	 * Default constructor.
@@ -60,5 +63,25 @@ public class PixelNode implements Comparable<PixelNode> {
 		} else {
 			return 0;
 		}
+	}
+
+	public boolean equals(Object o) {
+	    // self check
+	    if (this == o){
+	        return true;
+	    }
+	    // null check
+	    if (o == null){
+	        return false;
+	    }
+	    // type check and cast
+	    if (getClass() != o.getClass()){
+	        return false;
+	    }
+	    PixelNode PixelNodeParam = (PixelNode) o;
+	    // field comparison
+	    return (this.index == PixelNodeParam.index) && 
+	    	   (this.row == PixelNodeParam.row)     &&
+	    	   (this.col == PixelNodeParam.col); 
 	}
 }
